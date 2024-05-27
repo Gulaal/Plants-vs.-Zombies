@@ -4,33 +4,22 @@
 using namespace sf;
 using namespace std;
 
-//Изображение растения на карте
 class FlowerImage {
 public:
-	//Изображение растения (ссылка)
 	string currentPicture;
-	//Cнаряды (ссылка на картинку)
 	string weapon;
 	int posWeaponX;
 	int posWeaponY;
-	//Вызывающее действие
 	string doing;
-	//Скорость полета оружия
 	double dx;
-	//Перерисовывается (состояние)
 	bool reprinting = false;
-	//Модель растения
 	virtual void setModel() = 0;
-	//Позиция вылета снаряда
 	virtual void weaponFrom() = 0;
-	//Скорость полета снаряда
 	virtual void setSpeedDx(double) = 0;
-	//Установка вызывающего действия
 	virtual void setDoing() = 0;
-	//Обновление изображения пули
 	virtual void updateBullet(RenderWindow& window, double time) = 0;
 };
-//Обработка для Подсолнуха
+
 class SunflowerImage : public FlowerImage {
 	void setDoing() {
 		doing = "Кушать";
@@ -45,11 +34,9 @@ class SunflowerImage : public FlowerImage {
 	void updateBullet(RenderWindow& window, double time) {};
 };
 
-//Обработка для Горошка
 class PeaImage : public FlowerImage {
 	void weaponFrom() {
 		weapon = "снарядГорошек.png";
-		//Позиция вылета снаряда на картинке
 		posWeaponX = 100;
 		posWeaponY = 28;
 	}
@@ -66,7 +53,6 @@ class PeaImage : public FlowerImage {
 	}
 	void updateBullet(RenderWindow& window, double time) {
 		posWeaponX += dx * time;
-		//Загрузка новой анимации
 
 		Image bulletRender;
 		bulletRender.loadFromFile("снарядГорошек.png");
@@ -74,19 +60,16 @@ class PeaImage : public FlowerImage {
 		texture.loadFromImage(bulletRender);
 		Sprite newSprite;
 		newSprite.setTexture(texture);
-		//Создание новых координат для пули
 		newSprite.setTextureRect(IntRect(0, 0, 40, 40));
 		newSprite.setPosition(posWeaponX, posWeaponY);
-		//dx = 0;
-		//Нарисовать эти координаты
 		window.draw(newSprite);
 	}
 };
-//Обработка для Капусты
+
 class CabbageImage : public FlowerImage {
 	void weaponFrom() {
 		weapon = "снарядКапуста.png";
-		//Позиция вылета снаряда на картинке
+
 		posWeaponX = 13;
 		posWeaponY = 20;
 	}
@@ -101,24 +84,18 @@ class CabbageImage : public FlowerImage {
 	}
 	void updateBullet(RenderWindow& window, double time) {
 		posWeaponX += dx * time;
-		//Загрузка новой анимации
-
 		Image bulletRender;
 		bulletRender.loadFromFile("снарядКапуста.png");
 		Texture texture;
 		texture.loadFromImage(bulletRender);
 		Sprite newSprite;
 		newSprite.setTexture(texture);
-		//Создание новых координат для пули
 		newSprite.setTextureRect(IntRect(0, 0, 80, 80));
 		newSprite.setPosition(posWeaponX, posWeaponY);
-		//dx = 0;
-		//Нарисовать эти координаты
 		window.draw(newSprite);
 	}
 };
 
-//Обработка для Ореха
 class NutImage : public FlowerImage {
 	void setDoing() {
 		doing = "Кушать";
@@ -131,11 +108,9 @@ class NutImage : public FlowerImage {
 	void updateBullet(RenderWindow& window, double time) {};
 };
 
-//Обработка для Актинии
 class ActiniaImage : public FlowerImage {
 	void weaponFrom() {
 		weapon = "сюрикен1.png";
-		//Позиция вылета снаряда на картинке
 		posWeaponX = 103;
 		posWeaponY = 28;
 	}
@@ -151,8 +126,6 @@ class ActiniaImage : public FlowerImage {
 	}
 	void updateBullet(RenderWindow& window, double time) {
 		posWeaponX += dx * time;
-		//Загрузка новой анимации
-
 		Image bulletRender;
 		if (posWeaponX % 2 == 0)
 			bulletRender.loadFromFile("сюрикен1.png");
@@ -162,16 +135,13 @@ class ActiniaImage : public FlowerImage {
 		texture.loadFromImage(bulletRender);
 		Sprite newSprite;
 		newSprite.setTexture(texture);
-		//Создание новых координат для пули
 		newSprite.setTextureRect(IntRect(0, 0, 40, 40));
 		newSprite.setPosition(posWeaponX, posWeaponY);
-		//Нарисовать эти координаты
 		window.draw(newSprite);
 	}
 
 };
 
-//Обработка для бомбы
 class BombImage : public FlowerImage {
 	void setDoing() {
 		doing = "Кушать";
@@ -183,25 +153,21 @@ class BombImage : public FlowerImage {
 	}
 	void updateBullet(RenderWindow& window, double time) {};
 };
-//Интерфейс "Физика цветка" и 5 реализаций для него
+
 class FlowerPhysic {
 public:
 	int health;
 	int damage;
-	//true, если нужно (атаковать)
 	bool zombieInWay;
 	bool isAvialiable;
 	int weaponX;
 	Clock timeToCooldaun;
 public:
-	//Количество здоровья, урон, модель
 	virtual void setHealthPoint(int) = 0;
 	virtual void setDamagePoint(int) = 0;
 	virtual int getHealthPoint() = 0;
 	virtual int getDamage() = 0;
-	// Необходимость активироваться
 	virtual bool needToActivate(int) = 0;
-
 
 	void ripFlower() {
 		isAvialiable = false;
@@ -214,9 +180,6 @@ public:
 	virtual ~FlowerPhysic() {}
 };
 
-//Реализации для каждого из цветков
-
-//Подсолнух нежится на солнышке
 class SunflowerPhysic : public FlowerPhysic
 {
 public:
@@ -238,7 +201,7 @@ public:
 	}
 	virtual ~SunflowerPhysic() {}
 };
-//Горошек плюет горошинами (больно) 
+
 class PeaPhysic : public FlowerPhysic
 {
 public:
@@ -255,9 +218,6 @@ public:
 		return health;
 	}
 	bool needToActivate(int x2) {
-		//x1 - координата горошка
-		//x2 - координата зомби
-		//Если зомби правее пули, то активироваться
 		if (x2 > weaponX) {
 			zombieInWay = true;
 		}
@@ -266,7 +226,6 @@ public:
 	virtual ~PeaPhysic() {}
 };
 
-//Орех - сильный блок, его тяжело раскусить!
 class NutPhysic : public FlowerPhysic
 {
 public:
@@ -283,9 +242,6 @@ public:
 		return health;
 	}
 	bool needToActivate(int x2) {
-		//x1 - координата горошка
-		//x2 - координата зомби
-		//Если зомби правее пули, то активироваться
 		if (x2 > weaponX) {
 			zombieInWay = true;
 		}
@@ -295,7 +251,6 @@ public:
 	virtual ~NutPhysic() {}
 };
 
-//Капуста - не промахивается кочерыжками!
 class CabbagePhysic : public FlowerPhysic
 {
 public:
@@ -312,9 +267,6 @@ public:
 		return health;
 	}
 	bool needToActivate(int x2) {
-		//x1 - координата ореха
-		//x2 - координата зомби
-		//Если зомби правее , то активироваться
 		if (x2 < weaponX) {
 			zombieInWay = true;
 		}
@@ -323,7 +275,6 @@ public:
 	virtual ~CabbagePhysic() {}
 };
 
-//Актиния имеет сюрикены, бойся!
 class ActiniaPhysic : public FlowerPhysic
 {
 public:
@@ -340,9 +291,6 @@ public:
 		return health;
 	}
 	bool needToActivate(int x2) {
-		//x1 - координата бомбы
-		//x2 - координата зомби
-		//Если зомби левее бомбы, то активироваться
 		if (x2 < weaponX) {
 			zombieInWay = true;
 		}
@@ -351,7 +299,6 @@ public:
 	virtual ~ActiniaPhysic() {}
 };
 
-//Бомба - ты в ловушке!
 class BombPhysic : public FlowerPhysic
 {
 public:
@@ -367,10 +314,8 @@ public:
 	int getHealthPoint() {
 		return health;
 	}
-	bool needToActivate(int x2) {
-		//x1 - координата сюрикена
-		//x2 - координата зомби
-		//Если зомби правее сюрикена, то активироваться
+	bool needToActivate(int x2)
+	{
 		if (x2 > weaponX) {
 			zombieInWay = true;
 		}
@@ -380,15 +325,12 @@ public:
 	virtual ~BombPhysic() {}
 };
 
-//Абстрактная фабрика растений
 class FlowerFactory {
 public:
 	virtual FlowerImage* makeFlower() = 0;
 	virtual FlowerPhysic* makePhysic() = 0;
 };
 
-//Фабрика Подсолнухов возвращает Подсолнух и его Физику
-//Аналогично, для остальных растений
 class SunflowersFactory : public FlowerFactory {
 	FlowerImage* makeFlower() {
 		return new SunflowerImage();
@@ -443,7 +385,6 @@ class BombFactory : public FlowerFactory {
 	}
 };
 
-//Класс, в котором пара (Изображение, Физика)
 class FlowerPair
 {
 public:
@@ -451,7 +392,6 @@ public:
 	FlowerPhysic* physic;
 };
 
-//Класс с заполненной парой (Изображения и физики)
 class Flower {
 public:
 	FlowerPair* createFlower(FlowerFactory& factory) {
@@ -461,46 +401,34 @@ public:
 		return p;
 	}
 };
-/////////////////////////////////////////////////////////
-//Класс "Зомби"
+
 class Zombie {
 public:
-	//Изменение по оси x
-	//Для зомби всегда против оси
+
 	float dx;
 	float dy;
 	string fileName;
-	//Помещение картинки
 	float x;
 	float y;
 	Sprite sprite;
-	//Доступность
 	bool statusAviliable;
-	//Количество жизней и урон
 	int health;
 	int damage;
-	//Текущее состояние жизни
 	bool isLive;
-	//Сейчас - кушает
 	bool isEaten;
 
-	//Конструктор 
 	Zombie(RenderWindow &window, int posLine) {
-		//Зомби доступно для первого взятия
 		statusAviliable = true;
 		isLive = false;
 		isEaten = false;
 		Image ZombieRender;
-		//загружаем файл для карты
 		fileName = "zombieOnPlace.png";
 		ZombieRender.loadFromFile(fileName);
 		Texture texture;
 		texture.loadFromImage(ZombieRender);
 		sprite.setTexture(texture);
-		//Случайная позиция на любом из квадратов (из 5)
 		srand(time(0));
 		x = 1100;
-		//Параллельно "тачкам"
 		y = 125 + (posLine - 1) * 110;
 		dx = -0.01;
 		sprite.setTextureRect(IntRect(0, 0, 140, 140));
@@ -509,10 +437,8 @@ public:
 		damage = 10;
 	}
 
-	//Движение зомби
 	void update(RenderWindow &window, float time) {
 		x += dx * time;
-		//Загрузка новой анимации
 		if (fileName.find("On") != -1)
 			fileName = "zombieInRun.png";
 		else
@@ -524,11 +450,9 @@ public:
 		texture.loadFromImage(ZombieRender);
 		Sprite newSprite;
 		newSprite.setTexture(texture);
-		//Создание новых координат для зомби
 		newSprite.setTextureRect(IntRect(0, 0, 140, 140));
 		newSprite.setPosition(x, y);
 		dx = 0;
-		//Нарисовать эти координаты
 		window.draw(newSprite);
 
 	}
@@ -536,25 +460,21 @@ public:
 	double myDamage() {
 		return damage;
 	}
-
-	//Сделать недоступным для повторного взятия
 	void setUnvialible() {
 		statusAviliable = false;
 	}
 
-	//Проверка на доступность
+
 	bool isAvialible() {
 		return statusAviliable;
 	}
 
-	//Получение урона (от цветка)
 	void getDamage(FlowerPhysic* someFlower) {
 		health -= someFlower->getDamage();
 		if (health <= 0)
 			ripZombie();
 	}
 
-	//Цветок получает урон
 	void setDamage(FlowerPhysic* someFlower) {
 		someFlower->health -= damage;
 		if (someFlower->health <= 0) {
@@ -563,7 +483,6 @@ public:
 		}
 	}
 
-	//Зомби умер
 	void ripZombie() {
 		statusAviliable = false;
 	}
@@ -572,9 +491,9 @@ public:
 		return statusAviliable;
 	}
 
-	//Смена картинок при еде
+
 	void setNextPictureEating(RenderWindow& window) {
-		//Загрузка новой анимации
+		
 		if (fileName.find("Ест") == -1)
 			fileName = "ЗомбиЕст.png";
 		else
@@ -586,40 +505,30 @@ public:
 		texture.loadFromImage(ZombieRender);
 		Sprite newSprite;
 		newSprite.setTexture(texture);
-		//Создание новых координат для зомби
+		
 		newSprite.setTextureRect(IntRect(0, 0, 140, 140));
 		newSprite.setPosition(x, y);
 		dx = 0;
-		//Нарисовать эти координаты
+		
 		window.draw(newSprite);
 	}
 };
 
-///////////////////////////////////////////
-// Класс "Тележка"
 class Car {
 public:
-	//Изменение по оси x
-	//Для машины всегда по оси
 	float dx;
 	string fileName;
-	//Помещение картинки
 	float x;
 	float y;
 	Sprite sprite;
 	bool isRunningStatus;
-
-	//Конструктор 
 	Car(RenderWindow &window, int numberCar) {
 		Image car;
-		//загружаем файл для тачки
 		car.loadFromFile("modelТачка.png");
 		Texture texture;
 		texture.loadFromImage(car);
 		sprite.setTexture(texture);
-		//Координата левого верхнего угла, ширина и высота
 		sprite.setTextureRect(IntRect(0, 0, 120, 120));
-		//В определенных квадратах
 		auto i = numberCar;
 		sprite.setPosition(190, 140 + i * 110);
 		x = 190;
@@ -628,23 +537,17 @@ public:
 		isRunningStatus = false;
 		window.draw(sprite);
 	}
-	//Движение машины (движение вправо)
 	void update(RenderWindow &window, float time, int num) {
 		x += dx * time;
 
 		Image car;
-		//загружаем файл для тачки
 		car.loadFromFile("modelТачка.png");
 		Texture texture;
 		texture.loadFromImage(car);
 		sprite.setTexture(texture);
-		//Координата левого верхнего угла, ширина и высота
 		sprite.setTextureRect(IntRect(0, 0, 120, 120));
-
-		//Создание новых координат для машины
 		sprite.setPosition(x, y);
 		dx = 0;
-		//Нарисовать эти координаты
 		window.draw(sprite);
 	}
 
@@ -652,7 +555,6 @@ public:
 		return isRunningStatus;
 	}
 
-	//Движение машины
 	void carIsRunning(RenderWindow& window, int x1, vector<Zombie> &listZombies, vector<int> zombiesInLine, double time) {
 		for (auto i = 0; i < zombiesInLine.size(); i++) {
 			int x2 = listZombies[zombiesInLine[i]].x;
@@ -674,8 +576,6 @@ public:
 
 };
 
-
-//Коллекция машин
 class CarCollection {
 public:
 	friend class CarsIterator;
@@ -699,7 +599,6 @@ public:
 
 };
 
-//Итератор по машинам
 class CarIterator
 {
 	const CarCollection &car;
